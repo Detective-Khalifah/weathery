@@ -46,8 +46,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late double latitude = 0, longitude = 0;
   late bool permissionGranted;
-  late Uri req = Uri.parse('');
-  late final String region,
+  late Uri _req = Uri.parse('');
+  late String position,
+      region,
       country,
       locationName,
       timezone,
@@ -68,16 +69,24 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       latitude = pos.latitude;
       longitude = pos.longitude;
-      req = Uri.parse(
+      _req = Uri.parse(
           'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude');
     });
     return pos;
   }
 
   Future _requestWeatherData() async {
-    Response rawResponse = await get(req);
+    Response rawResponse = await get(_req);
     var jSONResponse = jsonDecode(rawResponse.body);
-    print(jSONResponse.toString());
+
+    position = jSONResponse['request']['query'];
+    locationName = jSONResponse['location']['name'];
+    region = jSONResponse['location']['region'];
+    timezone = jSONResponse['location']['timezone_id'];
+    localTime = jSONResponse['location']['localtime'];
+    temperature = jSONResponse['current']['temperature'].toString();
+    weatherIcon = jSONResponse['current']['weather_icons'][0];
+    weatherDescription = jSONResponse['current']['weather_descriptions'][0];
   }
 
   Future _getLocationAccess() async {
@@ -149,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 _requestWeatherData();
               },
               child: Text(
-                'Device Location:: Latitude: $latitude, Longitude: $longitude\nQuery:: $req',
+                'Device Location:: Latitude: $latitude, Longitude: $longitude\nQuery:: $_req',
               ),
             ),
           ],
