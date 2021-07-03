@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart';
 
 void main() {
   runApp(MyApp());
@@ -43,6 +46,15 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late double latitude = 0, longitude = 0;
   late bool permissionGranted;
+  late Uri req = Uri.parse('');
+  late final String region,
+      country,
+      locationName,
+      timezone,
+      localTime,
+      temperature,
+      weatherIcon,
+      weatherDescription;
 
   /// Determine the current position of the device.
   ///
@@ -56,8 +68,16 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       latitude = pos.latitude;
       longitude = pos.longitude;
+      req = Uri.parse(
+          'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude');
     });
     return pos;
+  }
+
+  Future _requestWeatherData() async {
+    Response rawResponse = await get(req);
+    var jSONResponse = jsonDecode(rawResponse.body);
+    print(jSONResponse.toString());
   }
 
   Future _getLocationAccess() async {
@@ -125,9 +145,11 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                _requestWeatherData();
+              },
               child: Text(
-                'Device Location:: Latitude: $latitude, Longitude: $longitude',
+                'Device Location:: Latitude: $latitude, Longitude: $longitude\nQuery:: $req',
               ),
             ),
           ],
