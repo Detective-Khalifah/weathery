@@ -36,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _weatherIconLink,
       _weatherDescription,
       _windDirection;
+  late Color? bgColor = Colors.blueGrey[400];
 
   Future _requestAndParseWeatherData() async {
     Response rawResponse = await get(_requestUri);
@@ -90,83 +91,104 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Container(
-          height: MediaQuery.of(context).size.height / 5,
-          width: MediaQuery.of(context).size.width,
+        Card(
           color: Colors.blueGrey[300],
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Text(_locationName != null
-                    ? 'The weather at $_locationName ($_position)'
-                    : '...'),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                    _localTime != null ? 'On $_localTime ($_timezone)' : '...'),
-              ),
-            ],
+          shadowColor: Colors.blueGrey[600],
+          elevation: 6,
+          borderOnForeground: false,
+          margin: EdgeInsets.fromLTRB(4, 4, 4, 8),
+          child: Container(
+            height: MediaQuery.of(context).size.height / 5,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(_locationName != null
+                      ? 'The weather at $_locationName ($_position)'
+                      : '...'),
+                ),
+                Expanded(
+                  child: Text(_localTime != null
+                      ? 'On $_localTime ($_timezone)'
+                      : '...'),
+                ),
+              ],
+            ),
           ),
         ),
         Expanded(
           flex: 1,
           child: ListView(
             children: [
-              ListTile(
-                leading: _weatherIconLink != null
-                    ? Image.network(_weatherIconLink)
-                    : FaIcon(FontAwesomeIcons.cloud),
-                title: Text('Weather'),
-                subtitle: Text('Weather Code: $_weatherCode'),
-                trailing: Text('$_weatherDescription'),
-              ),
-              ListTile(
-                leading: FaIcon(FontAwesomeIcons.city),
-                subtitle: Text('$_region'),
-                title: Text('Region'),
-                trailing: Text('$_country'),
-              ),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.tachometerAlt),
-                subtitle: Text('Air Humidity Level'),
-                title: Text('Humidity'),
-                trailing: Text('$_humidity' + '%'),
-              ),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.tachometerAlt),
-                subtitle: Text('Air Pressure'),
-                title: Text('Pressure'),
-                trailing: Text('$_pressure' + 'MB (millibar'),
-              ),
-              ListTile(
-                leading: TempIcon(
-                  temp: _temperature,
+              Card(
+                child: ListTile(
+                  leading: _weatherIconLink != null
+                      ? Image.network(_weatherIconLink)
+                      : FaIcon(FontAwesomeIcons.cloud),
+                  title: Text('Weather'),
+                  subtitle: Text('Weather Code: $_weatherCode'),
+                  trailing: Text('$_weatherDescription'),
                 ),
-                title: Text('Temperature'),
-                trailing: Text('$_temperature' + '\u00B0' + 'C'),
               ),
-              ListTile(
-                // TODO: Find icons & define conditions to use appropriate
-                //  icon depending on visibility
-                leading: Icon(FontAwesomeIcons.eye),
-                title: Text('Visibility'),
-                trailing: Text('$_visibility KM'),
+              Card(
+                child: ListTile(
+                  leading: FaIcon(FontAwesomeIcons.city),
+                  subtitle: Text('$_region'),
+                  title: Text('Region'),
+                  trailing: Text('$_country'),
+                ),
               ),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.directions),
-                title: Text('Wind Direction'),
-                trailing: Text('$_windDirection'),
+              Card(
+                child: ListTile(
+                  leading: Icon(FontAwesomeIcons.tachometerAlt),
+                  subtitle: Text('Air Humidity Level'),
+                  title: Text('Humidity'),
+                  trailing: Text('$_humidity' + '%'),
+                ),
               ),
-              ListTile(
-                // TODO: Find icons & define conditions to use appropriate
-                //  icon depending on visibility
-                leading: Icon(FontAwesomeIcons.wind),
-                title: Text('Wind Speed'),
-                trailing: Text('$_windSpeed KM/hr'),
+              Card(
+                child: ListTile(
+                  leading: Icon(FontAwesomeIcons.tachometerAlt),
+                  subtitle: Text('Air Pressure'),
+                  title: Text('Pressure'),
+                  trailing: Text('$_pressure' + 'MB (millibar'),
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: TempIcon(
+                    temp: _temperature,
+                  ),
+                  title: Text('Temperature'),
+                  trailing: Text('$_temperature' + '\u00B0' + 'C'),
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  // TODO: Find icons & define conditions to use appropriate
+                  //  icon depending on visibility
+                  leading: Icon(FontAwesomeIcons.eye),
+                  title: Text('Visibility'),
+                  trailing: Text('$_visibility KM'),
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  leading: Icon(FontAwesomeIcons.directions),
+                  title: Text('Wind Direction'),
+                  trailing: Text('$_windDirection'),
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  // TODO: Find icons & define conditions to use appropriate
+                  //  icon depending on visibility
+                  leading: Icon(FontAwesomeIcons.wind),
+                  title: Text('Wind Speed'),
+                  trailing: Text('$_windSpeed KM/hr'),
+                ),
               ),
             ],
           ),
