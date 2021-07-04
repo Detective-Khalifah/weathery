@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
-import 'package:weathery/constants.dart';
+import 'package:weathery/utilities/device_location.dart';
 
 import 'temp_icon.dart';
 
@@ -20,9 +19,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late double latitude = 0, longitude = 0;
-  late bool permissionGranted;
-  late Uri _req = Uri.parse('');
+  late Uri requestUri = Uri.parse('');
   late double humidity = 0,
       pressure = 0,
       temperature = 0,
@@ -40,24 +37,8 @@ class _MyHomePageState extends State<MyHomePage> {
       weatherDescription,
       windDirection;
 
-  /// Determine the current position of the device.
-  ///
-  /// When the location services are not enabled or permissions
-  /// are denied the `Future` will return an error.
-  Future<Position> _getUserDeviceLocation() async {
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    Position pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low);
-    latitude = pos.latitude;
-    longitude = pos.longitude;
-    _req = Uri.parse(
-        'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude&units=$kUnitType');
-    return pos;
-  }
-
   Future _requestAndParseWeatherData() async {
-    Response rawResponse = await get(_req);
+    Response rawResponse = await get(requestUri);
     var weatherJSONResponse = jsonDecode(rawResponse.body);
 
     setState(() {
@@ -88,52 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future _getLocationAccess() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-
-    switch (permission) {
-      case LocationPermission.denied:
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          // Permissions are denied, next time you could try
-          // requesting permissions again (this is also where
-          // Android's shouldShowRequestPermissionRationale
-          // returned true. According to Android guidelines
-          // your App should show an explanatory UI now.
-          permissionGranted = false;
-          return Future.error('Location permissions are denied');
-        }
-        break;
-      case LocationPermission.deniedForever:
-        // TODO: Permissions are denied forever, handle appropriately.
-        permissionGranted = false;
-        return Future.error(
-            'Location permissions are permanently denied, we cannot request permissions.');
-      case LocationPermission.whileInUse:
-      case LocationPermission.always:
-        permissionGranted = true;
-        break;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _getLocationAccess()
-        .whenComplete(() => _getUserDeviceLocation())
-        .whenComplete(() => _requestAndParseWeatherData());
+    getLocationAccess()
+        .whenComplete(() => getDeviceLocation())
+        .whenComplete(() {
+      if (permissionGranted && req.isNotEmpty) {
+        requestUri = Uri.parse(req);
+        _requestAndParseWeatherData();
+      }
+    });
   }
 
   @override
