@@ -95,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
       windDirection = weatherJSONResponse['current']['wind_dir'];
 
       // String variables
+      country = weatherJSONResponse['location']['country'];
       isDay = weatherJSONResponse['current']['is_day'];
       locationName = weatherJSONResponse['location']['name'];
       localTime = weatherJSONResponse['location']['localtime'];
@@ -213,19 +214,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   ListTile(
                     leading: FaIcon(FontAwesomeIcons.city),
-                    title: Text('Region'),
                     subtitle: Text('$region'),
+                    title: Text('Region'),
+                    trailing: Text('$country'),
                   ),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.tachometerAlt),
-                    title: Text('Humidity'),
                     subtitle: Text('Air Humidity Level'),
+                    title: Text('Humidity'),
                     trailing: Text('$humidity' + '%'),
                   ),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.tachometerAlt),
-                    title: Text('Pressure'),
                     subtitle: Text('Air Pressure'),
+                    title: Text('Pressure'),
                     trailing: Text('$pressure' + 'MB (millibar'),
                   ),
                   ListTile(
