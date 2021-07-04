@@ -22,16 +22,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late Uri _requestUri = Uri.parse('');
   late double _humidity = 0,
+      _latitude = 0,
+      _longitude = 0,
       _pressure = 0,
       _temperature = 0,
       _visibility = 0,
+      _utcOffset,
       _windSpeed = 0;
   int _weatherCode = 0;
-  var _country,
+  var _clarity,
+      _country,
       _isDay,
-      _locationName,
       _localTime,
-      _position,
       _region,
       _timezone,
       _weatherIconLink,
@@ -45,8 +47,13 @@ class _MyHomePageState extends State<MyHomePage> {
     var weatherJSONResponse = jsonDecode(rawResponse.body);
 
     setState(() {
-      // int variables
+      // num variables
+      _humidity = weatherJSONResponse['current']['humidity'];
+      _latitude = double.parse(weatherJSONResponse['location']['lat']);
+      _longitude = double.parse(weatherJSONResponse['location']['lon']);
+      _pressure = weatherJSONResponse['current']['pressure'];
       _temperature = weatherJSONResponse['current']['temperature'];
+      _utcOffset = double.parse(weatherJSONResponse['location']['utc_offset']);
       _visibility = weatherJSONResponse['current']['visibility'];
       _weatherCode = weatherJSONResponse['current']['weather_code'];
       _windSpeed = weatherJSONResponse['current']['wind_speed'];
@@ -55,10 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // String variables
       _country = weatherJSONResponse['location']['country'];
       _isDay = weatherJSONResponse['current']['is_day'];
-      _locationName = weatherJSONResponse['location']['name'];
       _localTime = weatherJSONResponse['location']['localtime'];
       _region = weatherJSONResponse['location']['region'];
-      _position = weatherJSONResponse['request']['query'];
       _timezone = weatherJSONResponse['location']['timezone_id'];
 
       var icon = [];
@@ -82,6 +87,15 @@ class _MyHomePageState extends State<MyHomePage> {
           _deetCardsColour = Color(0xFFECB425);
           break;
       }
+
+      if (_visibility > 5)
+        _clarity = 'clear';
+      else if (_visibility <= 5 && _visibility >= 2)
+        _clarity = 'haze';
+      else if (_visibility <= 2 && _visibility >= 1)
+        _clarity = 'mist';
+      else
+        _clarity = 'fog';
     });
   }
 
@@ -117,15 +131,20 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Text(_locationName != null
-                      ? 'The weather at $_locationName ($_position)'
-                      : '...'),
+                Text(
+                  _latitude.toString().isNotEmpty &&
+                          _longitude.toString().isNotEmpty
+                      ? 'The weather conditions at your location: ($_latitude, $_longitude)'
+                      : '...',
+                  style: GoogleFonts.acme(
+                      fontSize: 32, fontStyle: FontStyle.normal),
                 ),
-                Expanded(
-                  child: Text(_localTime != null
-                      ? 'On $_localTime ($_timezone)'
-                      : '...'),
+                Text(
+                  _localTime != null
+                      ? "On $_localTime ($_timezone) UTC ${_utcOffset > 0 ? '+$_utcOffset' : '-$_utcOffset'}"
+                      : '...',
+                  style: GoogleFonts.acme(
+                      fontSize: 20, fontStyle: FontStyle.italic),
                 ),
               ],
             ),
@@ -169,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   leading: Icon(FontAwesomeIcons.tachometerAlt),
                   subtitle: Text('Air Pressure'),
                   title: Text('Pressure'),
-                  trailing: Text('$_pressure' + 'MB (millibar'),
+                  trailing: Text('$_pressure' + 'MB (millibar)'),
                 ),
                 color: _deetCardsColour,
               ),
@@ -189,6 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //  icon depending on visibility
                   leading: Icon(FontAwesomeIcons.eye),
                   title: Text('Visibility'),
+                  subtitle: Text('$_clarity'),
                   trailing: Text('$_visibility KM'),
                 ),
                 color: _deetCardsColour,
