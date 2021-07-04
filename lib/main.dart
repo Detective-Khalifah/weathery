@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 
@@ -45,17 +46,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late double latitude = 0, longitude = 0;
+  static const String unitType = 'm';
   late bool permissionGranted;
   late Uri _req = Uri.parse('');
-  late String position,
-      region,
-      country,
+  late double humidity = 0,
+      pressure = 0,
+      temperature = 0,
+      visibility = 0,
+      windSpeed = 0;
+  int weatherCode = 0;
+  var country,
+      isDay,
       locationName,
-      timezone,
       localTime,
-      temperature,
-      weatherIcon,
-      weatherDescription;
+      position,
+      region,
+      timezone,
+      weatherIconLink,
+      weatherDescription,
+      windDirection;
 
   /// Determine the current position of the device.
   ///
@@ -66,27 +75,42 @@ class _MyHomePageState extends State<MyHomePage> {
     // continue accessing the position of the device.
     Position pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.low);
-    setState(() {
-      latitude = pos.latitude;
-      longitude = pos.longitude;
-      _req = Uri.parse(
-          'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude');
-    });
+    latitude = pos.latitude;
+    longitude = pos.longitude;
+    _req = Uri.parse(
+        'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude&units=$unitType');
     return pos;
   }
 
-  Future _requestWeatherData() async {
+  Future _requestAndParseWeatherData() async {
     Response rawResponse = await get(_req);
-    var jSONResponse = jsonDecode(rawResponse.body);
+    var weatherJSONResponse = jsonDecode(rawResponse.body);
 
-    position = jSONResponse['request']['query'];
-    locationName = jSONResponse['location']['name'];
-    region = jSONResponse['location']['region'];
-    timezone = jSONResponse['location']['timezone_id'];
-    localTime = jSONResponse['location']['localtime'];
-    temperature = jSONResponse['current']['temperature'].toString();
-    weatherIcon = jSONResponse['current']['weather_icons'][0];
-    weatherDescription = jSONResponse['current']['weather_descriptions'][0];
+    setState(() {
+      // int variables
+      temperature = weatherJSONResponse['current']['temperature'];
+      visibility = weatherJSONResponse['current']['visibility'];
+      weatherCode = weatherJSONResponse['current']['weather_code'];
+      windSpeed = weatherJSONResponse['current']['wind_speed'];
+      windDirection = weatherJSONResponse['current']['wind_dir'];
+
+      // String variables
+      isDay = weatherJSONResponse['current']['is_day'];
+      locationName = weatherJSONResponse['location']['name'];
+      localTime = weatherJSONResponse['location']['localtime'];
+      region = weatherJSONResponse['location']['region'];
+      position = weatherJSONResponse['request']['query'];
+      timezone = weatherJSONResponse['location']['timezone_id'];
+      var icon = [];
+      icon.add(weatherJSONResponse['current']['weather_icons'][0].toString());
+      weatherIconLink = icon.isNotEmpty
+          ? weatherJSONResponse['current']['weather_icons'][0]
+          : '';
+      icon.add(weatherJSONResponse['current']['weather_descriptions'][0]);
+      weatherDescription = icon[1] != null
+          ? weatherJSONResponse['current']['weather_descriptions'][0]
+          : '';
+    });
   }
 
   Future _getLocationAccess() async {
@@ -106,7 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     switch (permission) {
       case LocationPermission.denied:
-        // TODO: Handle this case.
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           // Permissions are denied, next time you could try
@@ -133,7 +156,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _getLocationAccess().whenComplete(() => _getUserDeviceLocation());
+    _getLocationAccess()
+        .whenComplete(() => _getUserDeviceLocation())
+        .whenComplete(() => _requestAndParseWeatherData());
   }
 
   @override
@@ -141,29 +166,138 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                _requestWeatherData();
-              },
-              child: Text(
-                'Device Location:: Latitude: $latitude, Longitude: $longitude\nQuery:: $_req',
+            Container(
+              height: MediaQuery.of(context).size.height / 5,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.blueGrey[300],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(locationName != null
+                        ? 'The weather at $locationName ($position)'
+                        : '...'),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(localTime != null
+                        ? 'On $localTime ($timezone)'
+                        : '...'),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: ListView(
+                children: [
+                  ListTile(
+                    leading: weatherIconLink != null
+                        ? Image.network(weatherIconLink)
+                        : FaIcon(FontAwesomeIcons.cloud),
+                    title: Text('Weather'),
+                    subtitle: Text('Weather Code: $weatherCode'),
+                    trailing: Text('$weatherDescription'),
+                  ),
+                  ListTile(
+                    leading: FaIcon(FontAwesomeIcons.city),
+                    title: Text('Region'),
+                    subtitle: Text('$region'),
+                  ),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.tachometerAlt),
+                    title: Text('Humidity'),
+                    subtitle: Text('Air Humidity Level'),
+                    trailing: Text('$humidity' + '%'),
+                  ),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.tachometerAlt),
+                    title: Text('Pressure'),
+                    subtitle: Text('Air Pressure'),
+                    trailing: Text('$pressure' + 'MB (millibar'),
+                  ),
+                  ListTile(
+                    leading: TempIcon(
+                      temp: temperature,
+                    ),
+                    title: Text('Temperature'),
+                    trailing: Text('$temperature' + '\u00B0' + 'C'),
+                  ),
+                  ListTile(
+                    // TODO: Find icons & define conditions to use appropriate
+                    //  icon depending on visibility
+                    leading: Icon(FontAwesomeIcons.eye),
+                    title: Text('Visibility'),
+                    trailing: Text('$visibility KM'),
+                  ),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.directions),
+                    title: Text('Wind Direction'),
+                    trailing: Text('$windDirection'),
+                  ),
+                  ListTile(
+                    // TODO: Find icons & define conditions to use appropriate
+                    //  icon depending on visibility
+                    leading: Icon(FontAwesomeIcons.wind),
+                    title: Text('Wind Speed'),
+                    trailing: Text('$windSpeed KM/hr'),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: ElevatedButton(
+                onPressed: _requestAndParseWeatherData,
+                child: Text(
+                  'Reload Data',
+                ),
               ),
             ),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class TempIcon extends StatelessWidget {
+  final double temp;
+
+  const TempIcon({Key? key, required this.temp}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    switch (temp.toInt()) {
+      case 100:
+        return Icon(FontAwesomeIcons.thermometerFull);
+      case 75:
+        return Icon(FontAwesomeIcons.thermometerThreeQuarters);
+      case 50:
+        return Icon(FontAwesomeIcons.thermometerHalf);
+      case 25:
+        return Icon(FontAwesomeIcons.thermometerQuarter);
+      case 0:
+        return Icon(FontAwesomeIcons.thermometerEmpty);
+      default:
+        if (temp >= 40)
+          return Icon(FontAwesomeIcons.temperatureHigh);
+        else if (temp < 40 && temp > 0)
+          return Icon(FontAwesomeIcons.temperatureLow);
+        else
+          /*(temp < 0) */ return Icon(FontAwesomeIcons.thermometerEmpty);
+    }
   }
 }
