@@ -33,9 +33,9 @@ class MyApp extends StatelessWidget {
       ),
       home: SafeArea(
         child: Scaffold(
-          backgroundColor: Colors.amberAccent,
+          backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: Colors.lightBlueAccent[100],
+            backgroundColor: Colors.white,
             elevation: 8,
             leading: Icon(
               CupertinoIcons.cloud,
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text(
-              'Weathery Home Page',
+              'Weathery',
               style: GoogleFonts.rockSalt(color: Colors.blueGrey, fontSize: 20),
             ),
           ),
