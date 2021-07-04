@@ -19,51 +19,51 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Uri requestUri = Uri.parse('');
-  late double humidity = 0,
-      pressure = 0,
-      temperature = 0,
-      visibility = 0,
-      windSpeed = 0;
-  int weatherCode = 0;
-  var country,
-      isDay,
-      locationName,
-      localTime,
-      position,
-      region,
-      timezone,
-      weatherIconLink,
-      weatherDescription,
-      windDirection;
+  late Uri _requestUri = Uri.parse('');
+  late double _humidity = 0,
+      _pressure = 0,
+      _temperature = 0,
+      _visibility = 0,
+      _windSpeed = 0;
+  int _weatherCode = 0;
+  var _country,
+      _isDay,
+      _locationName,
+      _localTime,
+      _position,
+      _region,
+      _timezone,
+      _weatherIconLink,
+      _weatherDescription,
+      _windDirection;
 
   Future _requestAndParseWeatherData() async {
-    Response rawResponse = await get(requestUri);
+    Response rawResponse = await get(_requestUri);
     var weatherJSONResponse = jsonDecode(rawResponse.body);
 
     setState(() {
       // int variables
-      temperature = weatherJSONResponse['current']['temperature'];
-      visibility = weatherJSONResponse['current']['visibility'];
-      weatherCode = weatherJSONResponse['current']['weather_code'];
-      windSpeed = weatherJSONResponse['current']['wind_speed'];
-      windDirection = weatherJSONResponse['current']['wind_dir'];
+      _temperature = weatherJSONResponse['current']['temperature'];
+      _visibility = weatherJSONResponse['current']['visibility'];
+      _weatherCode = weatherJSONResponse['current']['weather_code'];
+      _windSpeed = weatherJSONResponse['current']['wind_speed'];
+      _windDirection = weatherJSONResponse['current']['wind_dir'];
 
       // String variables
-      country = weatherJSONResponse['location']['country'];
-      isDay = weatherJSONResponse['current']['is_day'];
-      locationName = weatherJSONResponse['location']['name'];
-      localTime = weatherJSONResponse['location']['localtime'];
-      region = weatherJSONResponse['location']['region'];
-      position = weatherJSONResponse['request']['query'];
-      timezone = weatherJSONResponse['location']['timezone_id'];
+      _country = weatherJSONResponse['location']['country'];
+      _isDay = weatherJSONResponse['current']['is_day'];
+      _locationName = weatherJSONResponse['location']['name'];
+      _localTime = weatherJSONResponse['location']['localtime'];
+      _region = weatherJSONResponse['location']['region'];
+      _position = weatherJSONResponse['request']['query'];
+      _timezone = weatherJSONResponse['location']['timezone_id'];
       var icon = [];
       icon.add(weatherJSONResponse['current']['weather_icons'][0].toString());
-      weatherIconLink = icon.isNotEmpty
+      _weatherIconLink = icon.isNotEmpty
           ? weatherJSONResponse['current']['weather_icons'][0]
           : '';
       icon.add(weatherJSONResponse['current']['weather_descriptions'][0]);
-      weatherDescription = icon[1] != null
+      _weatherDescription = icon[1] != null
           ? weatherJSONResponse['current']['weather_descriptions'][0]
           : '';
     });
@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .whenComplete(() => getDeviceLocation())
         .whenComplete(() {
       if (permissionGranted && req.isNotEmpty) {
-        requestUri = Uri.parse(req);
+        _requestUri = Uri.parse(req);
         _requestAndParseWeatherData();
       }
     });
@@ -100,14 +100,14 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Expanded(
                 flex: 2,
-                child: Text(locationName != null
-                    ? 'The weather at $locationName ($position)'
+                child: Text(_locationName != null
+                    ? 'The weather at $_locationName ($_position)'
                     : '...'),
               ),
               Expanded(
                 flex: 1,
                 child: Text(
-                    localTime != null ? 'On $localTime ($timezone)' : '...'),
+                    _localTime != null ? 'On $_localTime ($_timezone)' : '...'),
               ),
             ],
           ),
@@ -117,56 +117,56 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ListView(
             children: [
               ListTile(
-                leading: weatherIconLink != null
-                    ? Image.network(weatherIconLink)
+                leading: _weatherIconLink != null
+                    ? Image.network(_weatherIconLink)
                     : FaIcon(FontAwesomeIcons.cloud),
                 title: Text('Weather'),
-                subtitle: Text('Weather Code: $weatherCode'),
-                trailing: Text('$weatherDescription'),
+                subtitle: Text('Weather Code: $_weatherCode'),
+                trailing: Text('$_weatherDescription'),
               ),
               ListTile(
                 leading: FaIcon(FontAwesomeIcons.city),
-                subtitle: Text('$region'),
+                subtitle: Text('$_region'),
                 title: Text('Region'),
-                trailing: Text('$country'),
+                trailing: Text('$_country'),
               ),
               ListTile(
                 leading: Icon(FontAwesomeIcons.tachometerAlt),
                 subtitle: Text('Air Humidity Level'),
                 title: Text('Humidity'),
-                trailing: Text('$humidity' + '%'),
+                trailing: Text('$_humidity' + '%'),
               ),
               ListTile(
                 leading: Icon(FontAwesomeIcons.tachometerAlt),
                 subtitle: Text('Air Pressure'),
                 title: Text('Pressure'),
-                trailing: Text('$pressure' + 'MB (millibar'),
+                trailing: Text('$_pressure' + 'MB (millibar'),
               ),
               ListTile(
                 leading: TempIcon(
-                  temp: temperature,
+                  temp: _temperature,
                 ),
                 title: Text('Temperature'),
-                trailing: Text('$temperature' + '\u00B0' + 'C'),
+                trailing: Text('$_temperature' + '\u00B0' + 'C'),
               ),
               ListTile(
                 // TODO: Find icons & define conditions to use appropriate
                 //  icon depending on visibility
                 leading: Icon(FontAwesomeIcons.eye),
                 title: Text('Visibility'),
-                trailing: Text('$visibility KM'),
+                trailing: Text('$_visibility KM'),
               ),
               ListTile(
                 leading: Icon(FontAwesomeIcons.directions),
                 title: Text('Wind Direction'),
-                trailing: Text('$windDirection'),
+                trailing: Text('$_windDirection'),
               ),
               ListTile(
                 // TODO: Find icons & define conditions to use appropriate
                 //  icon depending on visibility
                 leading: Icon(FontAwesomeIcons.wind),
                 title: Text('Wind Speed'),
-                trailing: Text('$windSpeed KM/hr'),
+                trailing: Text('$_windSpeed KM/hr'),
               ),
             ],
           ),
