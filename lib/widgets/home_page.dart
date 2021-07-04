@@ -92,10 +92,8 @@ class _MyHomePageState extends State<MyHomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Card(
-          color: Colors.blueGrey[300],
-          shadowColor: Colors.blueGrey[600],
+          color: Colors.amber[800],
           elevation: 6,
-          borderOnForeground: false,
           margin: EdgeInsets.fromLTRB(4, 4, 4, 8),
           child: Container(
             height: MediaQuery.of(context).size.height / 5,
