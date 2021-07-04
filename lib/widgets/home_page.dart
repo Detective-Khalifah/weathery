@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
+import 'package:weathery/constants.dart';
 
 import 'temp_icon.dart';
 
@@ -20,7 +21,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late double latitude = 0, longitude = 0;
-  static const String unitType = 'm';
   late bool permissionGranted;
   late Uri _req = Uri.parse('');
   late double humidity = 0,
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
     latitude = pos.latitude;
     longitude = pos.longitude;
     _req = Uri.parse(
-        'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude&units=$unitType');
+        'http://api.weatherstack.com/current?access_key=d1a39645995e0c8a2088f7be4c81da2c&query=$latitude,$longitude&units=$kUnitType');
     return pos;
   }
 
