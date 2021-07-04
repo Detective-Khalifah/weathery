@@ -1,7 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:weathery/constants.dart';
 
-late bool permissionGranted;
+late bool permissionGranted = false;
 late double _latitude = 0, _longitude = 0;
 late String req = '';
 
