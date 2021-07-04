@@ -36,7 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
       _weatherIconLink,
       _weatherDescription,
       _windDirection;
-  late Color? bgColor = Colors.blueGrey[400];
+  late Color? _deetCardsColour = Colors.white;
+  late Color? _highlightCardColour = Colors.white;
 
   Future _requestAndParseWeatherData() async {
     Response rawResponse = await get(_requestUri);
@@ -58,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _region = weatherJSONResponse['location']['region'];
       _position = weatherJSONResponse['request']['query'];
       _timezone = weatherJSONResponse['location']['timezone_id'];
+
       var icon = [];
       icon.add(weatherJSONResponse['current']['weather_icons'][0].toString());
       _weatherIconLink = icon.isNotEmpty
@@ -67,6 +69,18 @@ class _MyHomePageState extends State<MyHomePage> {
       _weatherDescription = icon[1] != null
           ? weatherJSONResponse['current']['weather_descriptions'][0]
           : '';
+
+      switch (_isDay.toString()) {
+        case "no": // nighttime
+          _highlightCardColour = Color(0xFF3864B2);
+          Color(0xFF1C82FF);
+          _deetCardsColour = Color(0xFF8996C4);
+          break;
+        case "yes": // daytime
+          _highlightCardColour = Color(0xFFE6830C);
+          _deetCardsColour = Color(0xFFECB425);
+          break;
+      }
     });
   }
 
@@ -92,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Card(
-          color: Colors.amber[800],
+          color: _highlightCardColour,
           elevation: 6,
           margin: EdgeInsets.fromLTRB(4, 4, 4, 8),
           child: Container(
@@ -129,6 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   subtitle: Text('Weather Code: $_weatherCode'),
                   trailing: Text('$_weatherDescription'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -137,6 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Region'),
                   trailing: Text('$_country'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -145,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Humidity'),
                   trailing: Text('$_humidity' + '%'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -153,6 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Pressure'),
                   trailing: Text('$_pressure' + 'MB (millibar'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -162,6 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Temperature'),
                   trailing: Text('$_temperature' + '\u00B0' + 'C'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -171,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Visibility'),
                   trailing: Text('$_visibility KM'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -178,6 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Wind Direction'),
                   trailing: Text('$_windDirection'),
                 ),
+                color: _deetCardsColour,
               ),
               Card(
                 child: ListTile(
@@ -187,6 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text('Wind Speed'),
                   trailing: Text('$_windSpeed KM/hr'),
                 ),
+                color: _deetCardsColour,
               ),
             ],
           ),
