@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:weathery/utilities/device_location.dart';
 
@@ -213,14 +214,19 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: ElevatedButton(
-            onPressed: _requestAndParseWeatherData,
-            child: Text(
-              'Reload Data',
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _requestAndParseWeatherData,
+                child: Text(
+                  'Reload',
+                  style: GoogleFonts.rockSalt(
+                      color: Colors.blueGrey, fontSize: 16),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
